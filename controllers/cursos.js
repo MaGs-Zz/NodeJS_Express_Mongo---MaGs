@@ -43,5 +43,38 @@ ruta.post('/', (req, res) => {
         res.status(400).json({ err });
     });
 });
+// Endpoint de tipo PUT para el recurso CURSOS
+ruta.put('/:id', (req, res) => {
+    let resultado = logic.actualizarCurso(req.params.id, req.body);  // Aquí debes asegurarte de usar 'logic'
 
+    resultado.then(curso => {
+        res.json(curso);
+    }).catch(err => {
+        res.status(400).json(err);
+    });
+});
+
+// Función asíncrona para actualizar un curso
+async function actualizarCurso(id, body) {
+    // Validar los datos del curso
+    const { error, value } = cursoSchema.validate(body);
+    if (error) {
+        throw new Error(`Validación fallida: ${error.message}`);
+    }
+
+    let curso = await Curso.findByIdAndUpdate(id, {
+        $set: {
+            titulo: body.titulo,
+            descripcion: body.descripcion,
+            alumnos: body.alumnos,
+            calificacion: body.calificacion
+        }
+    }, { new: true });
+    
+    if (!curso) {
+        throw new Error('Curso no encontrado.');
+    }
+
+    return curso;
+}
 module.exports = ruta;
