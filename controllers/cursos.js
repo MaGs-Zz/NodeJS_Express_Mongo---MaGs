@@ -104,4 +104,22 @@ async function desactivarCurso(id) {
 
     return curso;
 }
+
+// Función asíncrona para listar los cursos activos
+async function listarCursosActivos() {
+    let cursos = await Curso.find({ estado: true });
+    return cursos;
+}
+
+// Endpoint de tipo GET para el recurso CURSOS
+ruta.get('/', (req, res) => {  // Cambié POST por GET
+    let resultado = logic.listarCursosActivos();
+
+    resultado.then(cursos => {
+        res.json(cursos);
+    }).catch(err => {
+        res.status(400).json(err);
+    });
+});
+
 module.exports = ruta;
