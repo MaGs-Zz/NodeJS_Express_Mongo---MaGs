@@ -99,4 +99,32 @@ async function actualizarUsuario(email, body) {
 
     return usuario;
 }
+
+// Función asíncrona para desactivar un usuario
+async function desactivarUsuario(email) {
+    try {
+        let usuario = await Usuario.findOneAndUpdate(
+            { email: email },
+            { $set: { estado: false } },
+            { new: true }
+        );
+        return usuario;
+    } catch (error) {
+        throw new Error('Error al desactivar el usuario: ' + error.message);
+    }
+}
+
+// Endpoint de tipo DELETE para el recurso USUARIOS
+ruta.delete('/:email', (req, res) => {
+    let resultado = logic.desactivarUsuario(req.params.email);
+    resultado.then(valor => {
+        res.json({
+            usuario: valor
+        });
+    }).catch(err => {
+        res.status(400).json({
+            err
+        });
+    });
+});
 module.exports = ruta;
