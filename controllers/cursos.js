@@ -77,4 +77,31 @@ async function actualizarCurso(id, body) {
 
     return curso;
 }
+
+// Endpoint para desactivar un curso (DELETE)
+ruta.delete('/:id', (req, res) => {
+    let resultado = logic.desactivarCurso(req.params.id);  // Asegúrate de usar 'logic.desactivarCurso'
+
+    resultado.then(curso => {
+        res.json(curso);
+    }).catch(err => {
+        res.status(400).json(err);
+    });
+});
+
+
+// Función asíncrona para desactivar un curso
+async function desactivarCurso(id) {
+    let curso = await Curso.findByIdAndUpdate(id, {
+        $set: {
+            estado: false
+        }
+    }, { new: true });
+
+    if (!curso) {
+        throw new Error('Curso no encontrado.');
+    }
+
+    return curso;
+}
 module.exports = ruta;
