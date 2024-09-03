@@ -3,11 +3,41 @@ const logic = require('../logic/usuario_logic');
 const schema = require('../validaciones/usuarios_validations').schema; // Importa el schema correctamente
 const ruta = express.Router();
 
-// Endpoint de tipo POST para el recurso USUARIOS
+/**
+ * @swagger
+ * /api/usuarios:
+ *   post:
+ *     summary: Crea un nuevo usuario
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan Pérez"
+ *               email:
+ *                 type: string
+ *                 example: "juan.perez@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *     responses:
+ *       200:
+ *         description: Usuario creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valor:
+ *                   type: object
+ */
 ruta.post('/', (req, res) => {
     let body = req.body;
 
-    // Usar el schema para validar los datos de entrada
     const { error, value } = schema.validate(body); // Validar todos los campos del body
     if (!error) {
         let resultado = logic.crearUsuario(body);
@@ -22,7 +52,42 @@ ruta.post('/', (req, res) => {
     }
 });
 
-// Endpoint de tipo PUT para actualizar los datos del usuario
+/**
+ * @swagger
+ * /api/usuarios/{email}:
+ *   put:
+ *     summary: Actualiza un usuario existente
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Email del usuario a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan Pérez"
+ *               password:
+ *                 type: string
+ *                 example: "nuevo_password123"
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valor:
+ *                   type: object
+ */
 ruta.put('/:email', (req, res) => {
     const { error, value } = schema.validate(req.body); // Validar todos los campos del body
 
@@ -39,7 +104,29 @@ ruta.put('/:email', (req, res) => {
     }
 });
 
-// Endpoint de tipo DELETE para el recurso USUARIOS
+/**
+ * @swagger
+ * /api/usuarios/{email}:
+ *   delete:
+ *     summary: Desactiva un usuario
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Email del usuario a desactivar
+ *     responses:
+ *       200:
+ *         description: Usuario desactivado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 usuario:
+ *                   type: object
+ */
 ruta.delete('/:email', (req, res) => {
     let resultado = logic.desactivarUsuario(req.params.email);
     resultado.then(valor => {
@@ -53,7 +140,26 @@ ruta.delete('/:email', (req, res) => {
     });
 });
 
-// Endpoint de tipo GET para listar todos los usuarios activos
+/**
+ * @swagger
+ * /api/usuarios:
+ *   get:
+ *     summary: Lista todos los usuarios activos
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   nombre:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ */
 ruta.get('/', async (req, res) => {
     try {
         let resultado = logic.listarUsuarioActivos();
