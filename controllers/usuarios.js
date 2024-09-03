@@ -127,4 +127,24 @@ ruta.delete('/:email', (req, res) => {
         });
     });
 });
+
+// Endpoint de tipo GET para listar todos los usuarios activos
+ruta.get('/', async (req, res) => {
+    try {
+        let resultado = logic.listarUsuarioActivos();
+        resultado.then(usuarios => {
+            res.json(usuarios);
+        }).catch(err => {
+            res.status(400).json({ err });
+        });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+// Función asíncrona para listar todos los usuarios activos
+async function listarUsuarioActivos() {
+    let usuarios = await Usuario.find({ estado: true });
+    return usuarios;
+}
 module.exports = ruta;
