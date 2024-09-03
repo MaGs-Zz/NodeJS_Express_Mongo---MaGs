@@ -1,35 +1,29 @@
 const express = require('express');
-const Curso = require('../models/curso_model');
 const ruta = express.Router();
+const Joi = require('@hapi/joi');
+const logic = require('../logic/curso_logic');
+const cursoSchema = require('../validaciones/cursos_validations');
 
-
+/*
 ruta.get('/', (req, res) => {
     res.json('Respuesta a peticion GET de CURSOS funcionando correctamente...');
 
 });
-// Función asíncrona para crear un curso
-async function crearCurso(body) {
-    // Validar los datos del curso
-    const { error, value } = cursoSchema.validate(body);
-    if (error) {
-        throw new Error(`Validación fallida: ${error.message}`);
-    }
+*/
 
-    // Verificar si el título del curso ya existe
-    const cursoExistente = await Curso.findOne({ titulo: body.titulo });
-    if (cursoExistente) {
-        throw new Error('El título del curso ya existe.');
-    }
 
-    let curso = new Curso({
-        titulo: body.titulo,
-        descripcion: body.descripcion,
-        alumnos: body.alumnos,
-        calificacion: body.calificacion
+// Endpoint de tipo GET para el recurso CURSOS
+ruta.get('/', (req, res) => {  // Cambié POST por GET
+    let resultado = logic.listarCursosActivos();
+
+    resultado.then(cursos => {
+        res.json(cursos);
+    }).catch(err => {
+        res.status(400).json(err);
     });
+});
 
-    return await curso.save();
-}
+
 // Endpoint de tipo POST para el recurso CURSOS
 ruta.post('/', (req, res) => {
     const { error } = cursoSchema.validate(req.body);  // Realizar la validación
@@ -43,6 +37,10 @@ ruta.post('/', (req, res) => {
         res.status(400).json({ err });
     });
 });
+
+
+
+
 // Endpoint de tipo PUT para el recurso CURSOS
 ruta.put('/:id', (req, res) => {
     let resultado = logic.actualizarCurso(req.params.id, req.body);  // Aquí debes asegurarte de usar 'logic'
@@ -54,29 +52,6 @@ ruta.put('/:id', (req, res) => {
     });
 });
 
-// Función asíncrona para actualizar un curso
-async function actualizarCurso(id, body) {
-    // Validar los datos del curso
-    const { error, value } = cursoSchema.validate(body);
-    if (error) {
-        throw new Error(`Validación fallida: ${error.message}`);
-    }
-
-    let curso = await Curso.findByIdAndUpdate(id, {
-        $set: {
-            titulo: body.titulo,
-            descripcion: body.descripcion,
-            alumnos: body.alumnos,
-            calificacion: body.calificacion
-        }
-    }, { new: true });
-    
-    if (!curso) {
-        throw new Error('Curso no encontrado.');
-    }
-
-    return curso;
-}
 
 // Endpoint para desactivar un curso (DELETE)
 ruta.delete('/:id', (req, res) => {
@@ -89,37 +64,5 @@ ruta.delete('/:id', (req, res) => {
     });
 });
 
-
-// Función asíncrona para desactivar un curso
-async function desactivarCurso(id) {
-    let curso = await Curso.findByIdAndUpdate(id, {
-        $set: {
-            estado: false
-        }
-    }, { new: true });
-
-    if (!curso) {
-        throw new Error('Curso no encontrado.');
-    }
-
-    return curso;
-}
-
-// Función asíncrona para listar los cursos activos
-async function listarCursosActivos() {
-    let cursos = await Curso.find({ estado: true });
-    return cursos;
-}
-
-// Endpoint de tipo GET para el recurso CURSOS
-ruta.get('/', (req, res) => {  // Cambié POST por GET
-    let resultado = logic.listarCursosActivos();
-
-    resultado.then(cursos => {
-        res.json(cursos);
-    }).catch(err => {
-        res.status(400).json(err);
-    });
-});
 
 module.exports = ruta;
