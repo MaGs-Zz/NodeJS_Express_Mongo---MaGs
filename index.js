@@ -1,14 +1,27 @@
-const { createServer } = require('node:http');
+const usuarios = require('./controllers/usuarios');
+const cursos = require('./controllers/cursos');
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const express = require('express');
+const mongoose = require('mongoose');
 
-const server = createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Bienvenidos a mi primer aplicacion ');
-});
+// Configuración de la conexión a la base de datos MongoDB
+const uri = 'mongodb+srv://miguelgomezan439:<TeABxr954XxoYuBE>@cluster0.fjqxn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+// Conectar a MongoDB
+mongoose.connect(uri)
+    .then(() => console.log('Conectado a MongoDB...'))
+    .catch(err => console.error('No se pudo conectar con MongoDB:', err));
+
+// Configuración de Express
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// end points(recursos)
+app.use('/api/usuarios', usuarios);
+app.use('/api/cursos', cursos);
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`API REST OK, y ejecutándose en el puerto ${port}...`);
 });
