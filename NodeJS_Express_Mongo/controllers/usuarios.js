@@ -1,5 +1,5 @@
 const logic = require('../logic/usuario_logic');
-const { usuarioSchemaValidation } = require('../validaciones/Usuario_validation');
+const { usuarioSchemaValidation } = require('../validaciones/usuarios_validations');
 
 // Controlador para listar los usuarios activos
 const listarUsuarioActivos = async (req, res) => {

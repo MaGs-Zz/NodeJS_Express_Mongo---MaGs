@@ -25,7 +25,7 @@ async function actualizarUsuario(email, body) {
     if (!usuario) {
         throw new Error('Usuario no encontrado');
     }
-    
+
     // Verificar si hay cursos para agregar
     if (body.cursos && body.cursos.length > 0) {
         // Filtrar los cursos que ya están en el array para evitar duplicados
@@ -33,13 +33,13 @@ async function actualizarUsuario(email, body) {
         // Agregar los nuevos cursos al array de cursos del usuario
         usuario.cursos.push(...nuevosCursos);
     }
-    
+
     // Actualizar los demás campos
     usuario.nombre = body.nombre || usuario.nombre;
     usuario.password = body.password || usuario.password;
     usuario.estado = body.estado !== undefined ? body.estado : usuario.estado;
     usuario.imagen = body.imagen || usuario.imagen;
-    
+
     // Guardar los cambios en la base de datos
     await usuario.save();
     return usuario;
@@ -59,7 +59,7 @@ async function listarUsuarioActivos() {
         path: 'cursos',
         select: 'titulo' // Selecciona solo el campo 'titulo' del curso
     });
-    
+
     // Mapea los usuarios para devolver solo los títulos de los cursos
     usuarios = usuarios.map(usuario => {
         const cursosSoloTitulos = usuario.cursos.map(curso => curso.titulo);
@@ -84,7 +84,7 @@ async function agregarCursosAUsuario(email, cursosIds) {
         if (!usuario) {
             throw new Error('Usuario no encontrado');
         }
-        
+
         // Filtrar los cursos ya existentes para no duplicarlos
         const nuevosCursos = cursosIds.filter(cursoId => !usuario.cursos.includes(cursoId));
         // Agregar los nuevos cursos al array de cursos del usuario

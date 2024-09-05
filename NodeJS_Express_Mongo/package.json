@@ -32,6 +32,10 @@
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "express": "^4.19.2",
+<<<<<<< HEAD:package.json
+=======
+    "mongodb": "^6.8.0",
+>>>>>>> main:NodeJS_Express_Mongo/package.json
     "mongoose": "^8.6.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"

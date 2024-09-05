@@ -11,7 +11,7 @@ const usuarioSchemaValidation = Joi.object({
             'string.email': 'El correo electrónico debe tener un formato válido',
             'any.required': 'El correo electrónico es un campo requerido'
         }),
-    
+
     nombre: Joi.string()
         .min(3)
         .max(30)
@@ -25,7 +25,7 @@ const usuarioSchemaValidation = Joi.object({
             'string.pattern.base': 'El nombre solo puede contener letras y espacios',
             'any.required': 'El nombre es un campo requerido'
         }),
-    
+
     password: Joi.string()
         .min(6)
         .max(30)
@@ -39,13 +39,13 @@ const usuarioSchemaValidation = Joi.object({
             'string.pattern.base': 'La contraseña solo puede contener letras, números y caracteres especiales',
             'any.required': 'La contraseña es un campo requerido'
         }),
-    
+
     estado: Joi.boolean()
         .default(true)
         .messages({
             'boolean.base': 'El estado debe ser un valor booleano'
         }),
-    
+
     imagen: Joi.string()
         .uri()
         .optional()
@@ -55,7 +55,7 @@ const usuarioSchemaValidation = Joi.object({
             'string.base': 'La imagen debe ser una URL válida',
             'string.uri': 'La imagen debe tener un formato de URL válido'
         }),
-    
+
     cursos: Joi.array()
         .items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/)) // Validación de un array de ObjectId (24 caracteres hexadecimales)
         .optional()
