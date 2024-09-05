@@ -1,28 +1,29 @@
-const { required, boolean } = require('@hapi/joi');
 const mongoose = require('mongoose');
-
 const usuarioSchema = new mongoose.Schema({
-    nombre: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    estado:{
-        type: Boolean,
-        default: true
-    },
-    Imagen: {
-        type: String,
-        required: false
-    }
+email: {
+type:String,
+required: true
+},
+nombre: {
+type:String,
+required:true
+},
+password: {
+type:String,
+required: true
+},
+estado: {
+type: Boolean,
+default: true
+},
+imagen: {
+type: String,
+required: false
+},
+cursos: [{
+type: mongoose.Schema.Types.ObjectId,
+ref: 'Curso', // Referencia al modelo Curso
+required:false
+}]
 });
-
-// Asegúrate de exportar el modelo
 module.exports = mongoose.model('Usuario', usuarioSchema);
