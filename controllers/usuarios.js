@@ -1,176 +1,131 @@
-const express = require('express');
 const logic = require('../logic/usuario_logic');
-const schema = require('../validaciones/usuarios_validations').schema; // Importa el schema correctamente
-const ruta = express.Router();
+const { usuarioSchemaValidation } = require('../validaciones/Usuario_validation');
 
-/**
- * @swagger
- * /api/usuarios:
- *   post:
- *     summary: Crea un nuevo usuario
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nombre:
- *                 type: string
- *                 example: "Juan Pérez"
- *               email:
- *                 type: string
- *                 example: "juan.perez@example.com"
- *               password:
- *                 type: string
- *                 example: "password123"
- *     responses:
- *       200:
- *         description: Usuario creado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 valor:
- *                   type: object
- */
-ruta.post('/', (req, res) => {
-    let body = req.body;
-
-    const { error, value } = schema.validate(body); // Validar todos los campos del body
-    if (!error) {
-        let resultado = logic.crearUsuario(body);
-
-        resultado.then(user => {
-            res.json({ valor: user });
-        }).catch(err => {
-            res.status(400).json({ err });
-        });
-    } else {
-        res.status(400).json({ error: error.details }); // Devolver detalles del error de validación
-    }
-});
-
-/**
- * @swagger
- * /api/usuarios/{email}:
- *   put:
- *     summary: Actualiza un usuario existente
- *     parameters:
- *       - in: path
- *         name: email
- *         schema:
- *           type: string
- *         required: true
- *         description: Email del usuario a actualizar
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nombre:
- *                 type: string
- *                 example: "Juan Pérez"
- *               password:
- *                 type: string
- *                 example: "nuevo_password123"
- *     responses:
- *       200:
- *         description: Usuario actualizado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 valor:
- *                   type: object
- */
-ruta.put('/:email', (req, res) => {
-    const { error, value } = schema.validate(req.body); // Validar todos los campos del body
-
-    if (!error) {
-        let resultado = logic.actualizarUsuario(req.params.email, req.body);
-
-        resultado.then(valor => {
-            res.json({ valor });
-        }).catch(err => {
-            res.status(400).json({ err });
-        });
-    } else {
-        res.status(400).json({ error: error.details });
-    }
-});
-
-/**
- * @swagger
- * /api/usuarios/{email}:
- *   delete:
- *     summary: Desactiva un usuario
- *     parameters:
- *       - in: path
- *         name: email
- *         schema:
- *           type: string
- *         required: true
- *         description: Email del usuario a desactivar
- *     responses:
- *       200:
- *         description: Usuario desactivado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 usuario:
- *                   type: object
- */
-ruta.delete('/:email', (req, res) => {
-    let resultado = logic.desactivarUsuario(req.params.email);
-    resultado.then(valor => {
-        res.json({
-            usuario: valor
-        });
-    }).catch(err => {
-        res.status(400).json({
-            err
-        });
-    });
-});
-
-/**
- * @swagger
- * /api/usuarios:
- *   get:
- *     summary: Lista todos los usuarios activos
- *     responses:
- *       200:
- *         description: Lista de usuarios
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   nombre:
- *                     type: string
- *                   email:
- *                     type: string
- */
-ruta.get('/', async (req, res) => {
+// Controlador para listar los usuarios activos
+const listarUsuarioActivos = async (req, res) => {
     try {
-        let resultado = logic.listarUsuarioActivos();
-        resultado.then(usuarios => {
-            res.json(usuarios);
-        }).catch(err => {
-            res.status(400).json({ err });
-        });
+        const usuarios = await logic.listarUsuarioActivos();
+        if (usuarios.length === 0) {
+            return res.status(204).send(); // No Content
+        }
+        res.json(usuarios);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
-});
+};
 
-module.exports = ruta;
+// Controlador para crear un nuevo usuario
+const crearUsuario = async (req, res) => {
+    const { error, value } = usuarioSchemaValidation.validate(req.body);
+    if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+    }
+    try {
+        const nuevoUsuario = await logic.crearUsuario(value);
+        res.status(201).json({ usuario: nuevoUsuario }); // 201 Created
+    } catch (err) {
+        if (err.message === 'El correo electrónico ya está registrado') {
+            return res.status(409).json({ error: err.message }); // 409 Conflict
+        }
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
+// Controlador para actualizar un usuario
+const actualizarUsuario = async (req, res) => {
+    const { email } = req.params;
+    const { error, value } = usuarioSchemaValidation.validate(req.body);
+    if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+    }
+    try {
+        const usuarioActualizado = await logic.actualizarUsuario(email, value);
+        if (!usuarioActualizado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        res.json({ usuario: usuarioActualizado });
+    } catch (err) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
+// Controlador para desactivar un usuario
+const desactivarUsuario = async (req, res) => {
+    const { email } = req.params;
+    try {
+        const usuarioDesactivado = await logic.desactivarUsuario(email);
+        if (!usuarioDesactivado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        res.json({ usuario: usuarioDesactivado });
+    } catch (err) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
+// Controlador para agregar un curso a un usuario
+const agregarCursosAUsuario = async (req, res) => {
+    const { email } = req.params;
+    const { cursos } = req.body;
+    if (!Array.isArray(cursos) || cursos.length === 0) {
+        return res.status(400).json({ error: 'Se requiere un array de IDs de cursos' });
+    }
+    try {
+        const usuarioActualizado = await logic.agregarCursosAUsuario(email, cursos);
+        res.json({ usuario: usuarioActualizado });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Controlador para listar los cursos de un usuario
+const listarCursosDeUsuario = async (req, res) => {
+    const { usuarioId } = req.params;
+    try {
+        const cursos = await logic.listarCursosDeUsuario(usuarioId);
+        if (cursos.length === 0) {
+            return res.status(204).send(); // No Content
+        }
+        res.json(cursos);
+    } catch (err) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
+// Controlador para guardar una colección de usuarios
+const guardarColeccionUsuarios = async (req, res) => {
+    const usuarios = req.body; // Se espera que el cuerpo de la solicitud contenga un array de usuarios
+    // Validar y filtrar usuarios para evitar duplicados por correo electrónico
+    const emailsUnicos = new Set(); // Usamos un Set para almacenar correos únicos
+    const usuariosValidos = [];
+    for (let usuario of usuarios) {
+        const { error } = usuarioSchemaValidation.validate(usuario);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+        // Verificar si el correo ya fue encontrado en la colección
+        if (emailsUnicos.has(usuario.email)) {
+            continue; // Si ya existe, lo omitimos para evitar duplicados en la colección
+        }
+        // Agregar el correo al Set y el usuario al array de usuarios válidos
+        emailsUnicos.add(usuario.email);
+        usuariosValidos.push(usuario);
+    }
+    try {
+        const resultados = await logic.guardarColeccionUsuarios(usuariosValidos); // Llama a la función lógica
+        res.status(201).json(resultados); // Responde con los usuarios guardados
+    } catch (err) {
+        res.status(500).json({ error: 'Error interno del servidor al guardar la colección de usuarios' });
+    }
+};
+
+// Exportar los controladores
+module.exports = {
+    listarUsuarioActivos,
+    crearUsuario,
+    actualizarUsuario,
+    desactivarUsuario,
+    agregarCursosAUsuario,
+    listarCursosDeUsuario,
+    guardarColeccionUsuarios
+};

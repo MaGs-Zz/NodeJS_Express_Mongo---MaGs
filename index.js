@@ -1,49 +1,46 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const { swaggerUi, swaggerSpec } = require('./swagger/Swagger'); // Importa Swagger
 
-const usuarios = require('./controllers/usuarios');
-const cursos = require('./controllers/cursos');
+// Importar rutas
+const cursosRoutes = require('./routes/cursos_routes');
+const usuariosRoutes = require('./routes/usuarios_routes');
 
-// Conexión a la base de datos MongoDB
-mongoose.connect('mongodb+srv://miguelgomezan439:<G2ul5mqXBwz3InTM>@cluster0.fjqxn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Conectado a MongoDB...'))
-    .catch(err => console.log('No se pudo conectar a MongoDB...', err));
+// Importar la función de semillas
+const seedDatabase = require('./seed/seeds');
 
-// Middleware
+// Crear la aplicación Express
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Configuración de Swagger
-const swaggerOptions = {
-    swaggerDefinition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'API de Cursos y Usuarios',
-            version: '1.0.0',
-            description: 'Documentación de la API de Cursos y Usuarios'
-        },
-        servers: [
-            {
-                url: 'http://localhost:3000',
-                description: 'Servidor de desarrollo'
-            }
-        ],
-    },
-    apis: ['./controllers/*.js'], // Aquí es donde defines qué archivos contienen anotaciones Swagger
-};
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// Conexión a la base de datos de MongoDB
+mongoose.connect('')
+    .then(async () => {
+        console.log('Conectado a MongoDB');
 
-// Endpoints
-app.use('/api/usuarios', usuarios);
-app.use('/api/cursos', cursos);
+        // Ejecutar la siembra de la base de datos
+        await seedDatabase();
 
-// Inicio del servidor
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`API REST ejecutándose en el puerto ${port}...`);
-});
+        // Middleware
+        app.use(express.json()); // Middleware para parsear JSON
+        app.use(express.urlencoded({ extended: true }));
+
+        // Rutas de la aplicación
+        app.use('/api/cursos', cursosRoutes);
+        app.use('/api/usuarios', usuariosRoutes);
+
+        // Manejo de errores
+        app.use((err, req, res, next) => {
+            console.error(err.stack);
+            res.status(500).send('Algo salió mal!');
+        });
+
+        // Iniciar el servidor
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Servidor corriendo en http://localhost:${PORT}`);
+        });
+    })
+    .catch(err => console.log('No se pudo conectar con MongoDB..', err));
