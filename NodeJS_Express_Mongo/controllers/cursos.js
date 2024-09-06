@@ -22,12 +22,13 @@ const crearCurso = async (req, res) => {
         estado: body.estado,
         imagen: body.imagen,
         alumnos: body.alumnos,
-        calificacion: body.calificacion,
-        curso: body.curso
+        calificacion: body.calificacion
     });
+
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
+
     try {
         const nuevoCurso = await logic.crearCurso(value);
         res.status(201).json(nuevoCurso);
@@ -38,6 +39,7 @@ const crearCurso = async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
+
 // Controlador para actualizar un curso
 const actualizarCurso = async (req, res) => {
     const { id } = req.params;

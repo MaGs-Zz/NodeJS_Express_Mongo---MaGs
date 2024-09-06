@@ -73,7 +73,7 @@ router.get('/', usuarioController.listarUsuarioActivos);
  */
 router.get('/:usuarioId/cursos', usuarioController.listarCursosDeUsuario);
 
-// Crear un usuario sin cursos
+// Crear un usuario
 /**
  * @swagger
  * /usuarios:
@@ -90,13 +90,19 @@ router.get('/:usuarioId/cursos', usuarioController.listarCursosDeUsuario);
  *             properties:
  *               nombre:
  *                 type: string
- *                 example: "Carlos López"
+ *                 example: "Maria López"
  *               email:
  *                 type: string
- *                 example: "carlos.lopez@example.com"
+ *                 example: "maria.lopez@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password456"
  *               estado:
  *                 type: boolean
  *                 example: true
+ *               imagen:
+ *                 type: string
+ *                 example: "https://example.com/maria_lopez.jpg"
  *     responses:
  *       201:
  *         description: Usuario creado exitosamente
@@ -105,9 +111,10 @@ router.get('/:usuarioId/cursos', usuarioController.listarCursosDeUsuario);
  *       409:
  *         description: El usuario ya existe
  */
+
 router.post('/', usuarioController.crearUsuario);
 
-// Crear un usuario con cursos
+//Agrega cursos a un usuario
 /**
  * @swagger
  * /usuarios/{email}/cursos:
@@ -129,14 +136,8 @@ router.post('/', usuarioController.crearUsuario);
  *           schema:
  *             type: array
  *             items:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                   example: "60d1f0f55c8c3d2b5f8b4567"
- *                 titulo:
- *                   type: string
- *                   example: "Curso de Angular"
+ *               type: string
+ *               example: "60d1f0f55c8c3d2b5f8b4567"
  *     responses:
  *       200:
  *         description: Cursos agregados exitosamente al usuario
@@ -147,7 +148,7 @@ router.post('/', usuarioController.crearUsuario);
  */
 router.post('/:email/cursos', usuarioController.agregarCursosAUsuario);
 
-// Guardar una colección de usuarios
+//Guardar una coleccion de usuarios
 /**
  * @swagger
  * /usuarios/coleccion:
@@ -163,16 +164,31 @@ router.post('/:email/cursos', usuarioController.agregarCursosAUsuario);
  *             type: array
  *             items:
  *               type: object
+ *               required:
+ *                 - email
+ *                 - nombre
+ *                 - password
  *               properties:
- *                 nombre:
- *                   type: string
- *                   example: "Laura Gómez"
  *                 email:
  *                   type: string
- *                   example: "laura.gomez@example.com"
+ *                   example: "maria.lopez@example.com"
+ *                   description: "Correo electrónico válido del usuario."
+ *                 nombre:
+ *                   type: string
+ *                   example: "Maria López"
+ *                   description: "Nombre del usuario."
+ *                 password:
+ *                   type: string
+ *                   example: "password456"
+ *                   description: "Contraseña del usuario, debe tener entre 6 y 30 caracteres."
  *                 estado:
  *                   type: boolean
  *                   example: true
+ *                   description: "Estado activo o inactivo del usuario."
+ *                 imagen:
+ *                   type: string
+ *                   example: "https://example.com/maria_lopez.jpg"
+ *                   description: "URL de la imagen del usuario (opcional)."
  *     responses:
  *       201:
  *         description: Usuarios guardados exitosamente
@@ -181,6 +197,7 @@ router.post('/:email/cursos', usuarioController.agregarCursosAUsuario);
  *       500:
  *         description: Error interno del servidor
  */
+
 router.post('/coleccion', usuarioController.guardarColeccionUsuarios);
 
 // Actualizar un usuario
@@ -208,9 +225,15 @@ router.post('/coleccion', usuarioController.guardarColeccionUsuarios);
  *               nombre:
  *                 type: string
  *                 example: "Laura Gómez"
+ *               password:
+ *                 type: string
+ *                 example: "newpassword456"
  *               estado:
  *                 type: boolean
  *                 example: true
+ *               imagen:
+ *                 type: string
+ *                 example: "https://example.com/laura_gomez.jpg"
  *     responses:
  *       200:
  *         description: Usuario actualizado exitosamente
@@ -222,6 +245,7 @@ router.post('/coleccion', usuarioController.guardarColeccionUsuarios);
  *         description: Error interno del servidor
  */
 router.put('/:email', usuarioController.actualizarUsuario);
+
 
 // Eliminar usuario
 /**

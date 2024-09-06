@@ -96,6 +96,7 @@ async function agregarCursosAUsuario(email, cursosIds) {
     }
 }
 
+
 // Función asíncrona para guardar una colección de usuarios
 async function guardarColeccionUsuarios(usuarios) {
     try {

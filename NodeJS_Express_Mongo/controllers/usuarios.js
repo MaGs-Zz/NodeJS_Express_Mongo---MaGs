@@ -31,23 +31,37 @@ const crearUsuario = async (req, res) => {
     }
 };
 
-// Controlador para actualizar un usuario
 const actualizarUsuario = async (req, res) => {
     const { email } = req.params;
-    const { error, value } = usuarioSchemaValidation.validate(req.body);
-    if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+
+    // Verificar que el email esté presente en los parámetros
+    if (!email) {
+        return res.status(400).json({ error: 'El correo electrónico es un campo requerido' });
     }
+
+    // Validar el cuerpo de la solicitud, excluyendo 'email'
+    const { error, value } = usuarioSchemaValidation.validate(req.body, { abortEarly: false });
+    if (error) {
+        return res.status(400).json({ error: error.details.map(detail => detail.message).join(', ') });
+    }
+
+    // Asegúrate de que el email no se esté intentando actualizar
+    if (value.email) {
+        return res.status(400).json({ error: 'El correo electrónico no puede ser modificado' });
+    }
+
     try {
+        // Actualiza el usuario, usando el email como identificador
         const usuarioActualizado = await logic.actualizarUsuario(email, value);
         if (!usuarioActualizado) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
         res.json({ usuario: usuarioActualizado });
     } catch (err) {
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: 'Error interno del servidor', details: err.message });
     }
 };
+
 
 // Controlador para desactivar un usuario
 const desactivarUsuario = async (req, res) => {
@@ -63,20 +77,29 @@ const desactivarUsuario = async (req, res) => {
     }
 };
 
-// Controlador para agregar un curso a un usuario
+// Controlador para agregar cursos al usuario
 const agregarCursosAUsuario = async (req, res) => {
     const { email } = req.params;
-    const { cursos } = req.body;
-    if (!Array.isArray(cursos) || cursos.length === 0) {
-        return res.status(400).json({ error: 'Se requiere un array de IDs de cursos' });
+    const cursos = req.body; // Asegúrate de que cursos esté directamente en req.body
+
+    // Verificar que cursos es un array de strings
+    if (!Array.isArray(cursos) || cursos.some(cursoId => typeof cursoId !== 'string')) {
+        return res.status(400).json({ error: 'Se requiere un array de IDs de cursos como strings' });
     }
+
     try {
         const usuarioActualizado = await logic.agregarCursosAUsuario(email, cursos);
+        if (!usuarioActualizado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
         res.json({ usuario: usuarioActualizado });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+
 
 // Controlador para listar los cursos de un usuario
 const listarCursosDeUsuario = async (req, res) => {
