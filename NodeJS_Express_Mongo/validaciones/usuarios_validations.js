@@ -1,6 +1,6 @@
 const Joi = require('@hapi/joi');
 
-// Validaciones para el objeto usuario sin incluir email
+// Validaciones para el objeto usuario
 const usuarioSchemaValidation = Joi.object({
     nombre: Joi.string()
         .min(3)
@@ -14,6 +14,16 @@ const usuarioSchemaValidation = Joi.object({
             'string.max': 'El nombre no debe exceder los 30 caracteres',
             'string.pattern.base': 'El nombre solo puede contener letras y espacios',
             'any.required': 'El nombre es un campo requerido'
+        }),
+
+    email: Joi.string()
+        .email()
+        .required()
+        .messages({
+            'string.base': 'El correo electrónico debe ser un texto',
+            'string.email': 'El correo electrónico debe ser una dirección de correo válida',
+            'string.empty': 'El correo electrónico no puede estar vacío',
+            'any.required': 'El correo electrónico es un campo requerido'
         }),
 
     password: Joi.string()
@@ -46,7 +56,7 @@ const usuarioSchemaValidation = Joi.object({
             'string.uri': 'La imagen debe tener un formato de URL válido'
         }),
 
-        cursos: Joi.array()
+    cursos: Joi.array()
         .items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/)) // Validación de un array de ObjectId (24 caracteres hexadecimales)
         .optional()
         .messages({
