@@ -1,4 +1,7 @@
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
 const { swaggerUi, swaggerSpec } = require('./swagger/Swagger'); // Importa Swagger
 
@@ -40,7 +43,7 @@ mongoose.connect('mongodb+srv://miguelgomezan439:E1488fUTOuI6ePhs@cluster0.fjqxn
         // Iniciar el servidor
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
-            console.log(`Servidor corriendo en http://localhost:${PORT}`);
+            console.log(`Servidor corriendo en https://localhost:${PORT}`);
         });
     })
     .catch(err => console.log('No se pudo conectar con MongoDB..', err));
