@@ -165,7 +165,7 @@ const Cursos = () => {
 
     try {
       const response = await fetch(
-        `https://localhost:3000/HTTP://localhost:3000/api/cursos/${selectedCurso._id}`,
+        `https://localhost:3000/api/cursos/${selectedCurso._id}`,
         {
           method: "DELETE",
         }
