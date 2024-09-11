@@ -21,7 +21,7 @@ const Home = () => {
   
     const fetchCursos = async () => {
       try {
-        const response = await fetch('/api/cursos');
+        const response = await fetch('https://localhost:3000/api/cursos');
         if (!response.ok) throw new Error('Error al obtener cursos');
         const data = await response.json();
         setCursos(data);
@@ -31,6 +31,7 @@ const Home = () => {
         setOpenSnackbar(true);
       }
     };
+    
   
     const handleImageError = (e) => {
       e.target.src = 'https://via.placeholder.com/150'; // Imagen por defecto
