@@ -272,4 +272,60 @@ router.put('/:email', usuarioController.actualizarUsuario);
  */
 router.delete('/:email', usuarioController.desactivarUsuario);
 
+// Actualizar los cursos de un usuario
+/**
+ * @swagger
+ * /usuarios/{email}/cursos:
+ *   put:
+ *     summary: Actualiza los cursos asociados a un usuario por su email
+ *     tags:
+ *       - Usuarios
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         description: Email del usuario
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cursos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   example: "60d2b6e3e6b0f99dbe0c5a75"
+ *     responses:
+ *       200:
+ *         description: Cursos actualizados correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Cursos actualizados correctamente"
+ *                 usuario:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     nombre:
+ *                       type: string
+ *                     cursos:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.put('/:email/cursos', usuarioController.actualizarCursosDeUsuario);
+
 module.exports = router;
