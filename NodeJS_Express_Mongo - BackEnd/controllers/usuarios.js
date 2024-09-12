@@ -1,5 +1,5 @@
 const logic = require('../logic/usuario_logic');
-const { usuarioSchemaValidation } = require('../validaciones/usuarios_validations');
+const { usuarioSchemaValidation,  usuarioActualizarSchema} = require('../validaciones/usuarios_validations');
 
 // Controlador para listar los usuarios activos
 const listarUsuarioActivos = async (req, res) => {
@@ -40,7 +40,7 @@ const actualizarUsuario = async (req, res) => {
     }
 
     // Validar el cuerpo de la solicitud, excluyendo 'email'
-    const { error, value } = usuarioSchemaValidation.validate(req.body, { abortEarly: false });
+    const { error, value } = usuarioActualizarSchema.validate(req.body, { abortEarly: false });
     if (error) {
         return res.status(400).json({ error: error.details.map(detail => detail.message).join(', ') });
     }
